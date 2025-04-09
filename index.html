@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 3: Exploratory Data Analysis (EDA) & Visualization for Malaria Data</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <button class="sidebar-toggle" id="sidebar-toggle">Menu</button>
+    
+    <div class="sidebar" id="sidebar">
+        <h3>Course Navigation</h3>
+        <ul>
+            <li class="menu-item">
+                <a href="#week3">📅 Week 3: EDA & Visualization</a>
+                <ul class="sub-menu">
+                    <li><a href="#stats">Descriptive Statistics</a></li>
+                    <li><a href="#missing">Handling Missing Values</a></li>
+                    <li><a href="#viz">Data Visualization with matplotlib & seaborn</a></li>
+                    <li><a href="#advanced">Advanced Visualization</a></li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="#exercises3">📌 Week 3: Exercises</a>
+                <ul class="sub-menu">
+                    <li><a href="#ex-stats">Statistics Exercises</a></li>
+                    <li><a href="#ex-missing">Missing Values Exercises</a></li>
+                    <li><a href="#ex-viz">Visualization Exercises</a></li>
+                    <li><a href="#ex-bonus3">Dashboard Challenge</a></li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="#solutions3">📌 Week 3: Solutions</a>
+                <ul class="sub-menu">
+                    <li><a href="#sol-stats">Statistics Solutions</a></li>
+                    <li><a href="#sol-missing">Missing Values Solutions</a></li>
+                    <li><a href="#sol-viz">Visualization Solutions</a></li>
+                    <li><a href="#sol-bonus3">Dashboard Solution</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="container">
+        <h1 id="week3">📅 Week 3: Exploratory Data Analysis (EDA) & Visualization for Malaria Data</h1>
+        
+        <p>This week, we will:<br>
+        ✅ <strong>Master descriptive statistics & summary tables</strong> for malaria datasets<br>
+        ✅ <strong>Learn to handle missing values</strong> with <code>dropna()</code> and <code>fillna()</code><br>
+        ✅ <strong>Create effective visualizations with <code>matplotlib</code> and <code>seaborn</code></strong> for malaria data analysis</p>
+        
+        <hr>
+        
+        <h2 id="stats">1️⃣ Descriptive Statistics & Summary Tables</h2>
+        
+        <h3>What is Exploratory Data Analysis (EDA)?</h3>
+        <p>📌 <strong>EDA</strong> is the process of analyzing data sets to summarize their main characteristics, often using visual methods. It's a critical first step before building complex models.</p>
+        
+        <h3>Step 1: Basic Summary Statistics</h3>
+        <div class="r-code">
+            <pre><code>
+# Load our malaria dataset
+import pandas as pd
+malaria_data = pd.read_csv("malaria_dataset.csv")
+# Generate basic summary statistics
+summary_stats = malaria_data.describe()
+print(summary_stats)
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>describe()</code> provides basic statistics for each numeric column: count, mean, std, min, 25%, 50%, 75%, max<br>
+            ✔ For categorical variables, we can use <code>value_counts()</code> to show frequencies</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 2: Group-wise Statistics</h3>
+        <div class="r-code">
+            <pre><code>
+# Calculate mean malaria cases by region
+region_stats = malaria_data.groupby('region').agg({
+    'cases': ['mean', 'median', 'min', 'max']
+}).reset_index()
+print(region_stats)
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>groupby()</code> allows us to perform operations by group (e.g., region)<br>
+            ✔ <code>agg()</code> computes summary statistics for each group<br>
+            ✔ Python's pandas automatically handles missing values in calculations</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 3: Frequency Tables</h3>
+        <div class="r-code">
+            <pre><code>
+# Create frequency table for severity levels
+severity_table = malaria_data['severity'].value_counts()
+print(severity_table)
+# Calculate proportion table
+severity_prop = malaria_data['severity'].value_counts(normalize=True) * 100
+print(severity_prop)
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>value_counts()</code> counts occurrences of each category in a variable<br>
+            ✔ <code>value_counts(normalize=True)</code> converts counts to proportions (multiplied by 100 for percentages)</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 4: Cross-tabulation</h3>
+        <div class="r-code">
+            <pre><code>
+# Create cross-tabulation of region and severity
+import pandas as pd
+from scipy import stats
+region_severity_table = pd.crosstab(malaria_data['region'], malaria_data['severity'])
+print(region_severity_table)
+# Calculate chi-square test for association
+chi2, p, dof, expected = stats.chi2_contingency(region_severity_table)
+print(f"Chi-square value: {chi2}")
+print(f"P-value: {p}")
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ Cross-tabulation shows the relationship between two categorical variables<br>
+            ✔ <code>chi2_contingency()</code> tests whether there's a significant association between region and severity</p>
+        </div>
+        
+        <hr>
+        
+        <h2 id="missing">2️⃣ Handling Missing Values in Malaria Data</h2>
+        
+        <h3>Step 1: Identifying Missing Values</h3>
+        <div class="r-code">
+            <pre><code>
+# Check for missing values in the dataset
+missing_values = malaria_data.isnull().sum()
+print(missing_values)
+# Calculate the percentage of missing values
+missing_percentage = malaria_data.isnull().mean() * 100
+print(missing_percentage)
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>isnull()</code> identifies missing values in the dataset<br>
+            ✔ <code>sum()</code> counts the missing values in each column<br>
+            ✔ <code>mean()</code> calculates the proportion of missing values in each column</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 2: Removing Rows with Missing Values</h3>
+        <div class="r-code">
+            <pre><code>
+# Remove rows with any missing values
+complete_data = malaria_data.dropna()
+# Check how many rows were removed
+original_rows = len(malaria_data)
+complete_rows = len(complete_data)
+removed_rows = original_rows - complete_rows
+print(f"Removed {removed_rows} rows with missing data")
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>dropna()</code> removes any row that contains at least one missing value<br>
+            ✔ This is a simple approach but may remove too much data if missing values are common</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 3: Replacing Missing Values with pandas</h3>
+        <div class="r-code">
+            <pre><code>
+# Replace missing values in 'cases' with the mean
+malaria_data_imputed = malaria_data.copy()
+malaria_data_imputed['cases'] = malaria_data_imputed['cases'].fillna(malaria_data_imputed['cases'].mean())
+# Replace missing values in 'severity' with "Unknown"
+malaria_data_imputed['severity'] = malaria_data_imputed['severity'].fillna("Unknown")
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>fillna()</code> replaces NA values with specified replacements<br>
+            ✔ For numeric columns, we often replace with mean, median, or zero<br>
+            ✔ For categorical columns, we may replace with a new category like "Unknown"</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 4: Missing Value Visualization</h3>
+        <div class="r-code">
+            <pre><code>
+# Install and import packages for missing data visualization
+# pip install missingno
+import missingno as msno
+import matplotlib.pyplot as plt
+# Create a visualization of missing data patterns
+msno.bar(malaria_data)
+plt.title('Missing Values by Column')
+plt.show()
+# Create a matrix of missing data patterns
+msno.matrix(malaria_data)
+plt.title('Missing Values Matrix')
+plt.show()
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>missingno</code> package provides specialized tools for exploring missing data<br>
+            ✔ <code>msno.bar()</code> creates a plot showing the count of missing values by variable<br>
+            ✔ <code>msno.matrix()</code> creates a matrix visualization of missing values throughout the dataset</p>
+        </div>
+        
+        <hr>
+        
+        <h2 id="viz">3️⃣ Data Visualization with matplotlib and seaborn for Malaria Analysis</h2>
+        
+        <h3>Step 1: Installing and Importing Packages</h3>
+        <div class="r-code">
+            <pre><code>
+# Install and import visualization packages
+# pip install matplotlib seaborn
+import matplotlib.pyplot as plt
+import seaborn as sns
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>matplotlib</code> is a comprehensive visualization library for creating static, animated, and interactive visualizations<br>
+            ✔ <code>seaborn</code> is a high-level interface to matplotlib that provides a more aesthetically pleasing plotting style</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 2: Creating Histograms</h3>
+        <div class="r-code">
+            <pre><code>
+# Create a histogram of malaria cases
+plt.figure(figsize=(10, 6))
+sns.histplot(data=malaria_data, x='cases', bins=20, color='steelblue', kde=True)
+plt.title('Distribution of Malaria Cases')
+plt.xlabel('Number of Cases')
+plt.ylabel('Frequency')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>plt.figure()</code> creates a new figure with specified size<br>
+            ✔ <code>sns.histplot()</code> creates a histogram with specified number of bins<br>
+            ✔ <code>plt.title()</code>, <code>plt.xlabel()</code>, and <code>plt.ylabel()</code> add titles and labels<br>
+            ✔ <code>plt.grid()</code> adds a grid to the plot for better readability</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 3: Creating Boxplots</h3>
+        <div class="r-code">
+            <pre><code>
+# Create boxplots of cases by region
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=malaria_data, x='region', y='cases', palette='Set3')
+plt.title('Malaria Cases by Region')
+plt.xlabel('Region')
+plt.ylabel('Number of Cases')
+plt.xticks(rotation=45)
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>sns.boxplot()</code> creates boxplots showing the distribution within each group<br>
+            ✔ The boxplot shows median, quartiles, and outliers<br>
+            ✔ <code>palette='Set3'</code> specifies a color palette for different regions</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 4: Creating Bar Charts</h3>
+        <div class="r-code">
+            <pre><code>
+# Create a bar chart of average cases by region
+region_avg = malaria_data.groupby('region')['cases'].mean().reset_index()
+plt.figure(figsize=(12, 6))
+sns.barplot(data=region_avg, x='region', y='cases', palette='viridis')
+plt.title('Average Malaria Cases by Region')
+plt.xlabel('Region')
+plt.ylabel('Average Number of Cases')
+plt.xticks(rotation=45)
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>sns.barplot()</code> creates bars with heights proportional to values<br>
+            ✔ First we aggregate the data, then visualize the aggregated stats</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 5: Time Series Line Plots</h3>
+        <div class="r-code">
+            <pre><code>
+# Create a time series plot of malaria cases
+# Assume 'date' column exists or create it
+import pandas as pd
+malaria_data['date'] = pd.to_datetime(malaria_data[['year', 'month']].assign(day=1))
+plt.figure(figsize=(12, 6))
+plt.plot(malaria_data['date'], malaria_data['cases'], marker='o', color='darkred', linestyle='-')
+plt.title('Malaria Cases Over Time')
+plt.xlabel('Date')
+plt.ylabel('Number of Cases')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>plt.plot()</code> connects points with lines to show trends over time<br>
+            ✔ <code>marker='o'</code> adds points at each observation<br>
+            ✔ <code>pd.to_datetime()</code> converts year and month columns to a datetime format</p>
+        </div>
+        
+        <hr>
+        
+        <h3>Step 6: Faceted Plots</h3>
+        <div class="r-code">
+            <pre><code>
+# Create faceted plots by region
+g = sns.FacetGrid(malaria_data, col='region', col_wrap=3, height=4, aspect=1.5)
+g.map_dataframe(sns.lineplot, x='date', y='cases')
+g.set_axis_labels('Date', 'Number of Cases')
+g.set_titles('{col_name}')
+g.fig.suptitle('Malaria Cases Over Time by Region', y=1.02, fontsize=16)
+plt.tight_layout()
+plt.show()
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>sns.FacetGrid()</code> creates separate panels for each region<br>
+            ✔ <code>col_wrap=3</code> specifies how many panels to place per row<br>
+            ✔ <code>g.map_dataframe()</code> applies the plotting function to each panel</p>
+        </div>
+        
+        <hr>
+        
+        <h3 id="advanced">Step 7: Advanced Visualization with Interactive Elements</h3>
+        <div class="r-code">
+            <pre><code>
+# Install and import packages for interactive plots
+# pip install plotly
+import plotly.express as px
+import plotly.graph_objects as go
+# Create an interactive bar chart
+district_totals = malaria_data.groupby('district')['cases'].sum().reset_index()
+district_totals = district_totals.sort_values('cases', ascending=False)
+fig = px.bar(
+    district_totals, 
+    x='district', 
+    y='cases',
+    title='Total Malaria Cases by District',
+    labels={'district': 'District', 'cases': 'Total Cases'},
+    color='cases',
+    color_continuous_scale='Viridis'
+)
+fig.update_layout(xaxis_tickangle=-45)
+fig.show()
+            </code></pre>
+        </div>
+        
+        <div class="explanation">
+            <h4>🔍 Explanation:</h4>
+            <p>✔ <code>plotly</code> creates interactive visualizations that can be used in web applications<br>
+            ✔ Interactive elements include tooltips, zooming, and panning<br>
+            ✔ <code>px.bar()</code> creates a bar chart with the specified data and customizations</p>
+        </div>
+        
+        <hr>
+        
+        <h2>✅ Summary of Week 3</h2>
+        <p>By the end of this week, you should:<br>
+        ✔ <strong>Know how to generate descriptive statistics</strong> for malaria data<br>
+        ✔ <strong>Understand methods for handling missing values</strong> in datasets<br>
+        ✔ <strong>Be able to create effective visualizations</strong> using matplotlib and seaborn<br>
+        ✔ <strong>Interpret visual patterns</strong> to identify trends in malaria data</p>
+        
+        <hr>
+        
+        <h1 id="exercises3">📌 Week 3: Exercises – Exploratory Data Analysis & Visualization for Malaria Data</h1>
+        
+        <p>This week's exercises will focus on applying descriptive statistics, handling missing values, and creating insightful visualizations of malaria data. These skills are critical for understanding your data before proceeding to more complex analyses.</p>
+        
+        <hr>
+        
+        <div class="exercise-section">
+            <h2 id="ex-stats">1️⃣ Descriptive Statistics & Summary Tables</h2>
+            
+            <h3>Exercise 1.1: Basic Summary Statistics</h3>
+            <p>🔹 <strong>You have a dataset called <code>malaria_surveillance</code> with the following columns:</strong><br>
+            - <code>district</code>: Name of the district<br>
+            - <code>month</code>: Month of data collection (1-12)<br>
+            - <code>year</code>: Year of data collection<br>
+            - <code>cases</code>: Number of reported malaria cases<br>
+            - <code>deaths</code>: Number of malaria-related deaths<br>
+            - <code>population</code>: Population of the district</p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Load the dataset and display its information using <code>info()</code>.</li>
+                <li>Calculate summary statistics for all numeric variables.</li>
+                <li>Find the district with the highest number of cases.</li>
+                <li>Calculate the case fatality rate (deaths/cases) for each district.</li>
+            </ol>
+            
+            <hr>
+            
+            <h3>Exercise 1.2: Group-wise Statistics</h3>
+            <p>🔹 <strong>Using the same dataset, analyze malaria statistics by district and year.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Calculate the average number of cases per year for each district.</li>
+                <li>Identify the year with the highest total number of cases across all districts.</li>
+                <li>Calculate the incidence rate (cases per 1000 population) for each district-year combination.</li>
+                <li>Create a summary table showing the top 5 district-year combinations with the highest incidence rates.</li>
+            </ol>
+            
+            <hr>
+            
+            <h3>Exercise 1.3: Statistical Tests</h3>
+            <p>🔹 <strong>Perform statistical comparisons between different groups in the dataset.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Test whether there is a significant difference in mean cases between districts using ANOVA.</li>
+                <li>Perform a t-test to compare cases between two specific districts of your choice.</li>
+                <li>Check if there's a correlation between population size and number of cases using Pearson's correlation.</li>
+            </ol>
+            
+        </div>
+        
+        <div class="exercise-section">
+            <h2 id="ex-missing">2️⃣ Handling Missing Values</h2>
+            
+            <h3>Exercise 2.1: Identify Missing Data</h3>
+            <p>🔹 <strong>The <code>malaria_surveillance</code> dataset has some missing values in the <code>cases</code> and <code>deaths</code> columns.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Count how many values are missing in each column.</li>
+                <li>Calculate the percentage of missing values in each column.</li>
+                <li>Identify districts with the most missing values.</li>
+            </ol>
+            
+            <hr>
+            
+            <h3>Exercise 2.2: Handle Missing Values</h3>
+            <p>🔹 <strong>Apply different strategies to handle missing data in the dataset.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Create a new dataset with complete cases only (no missing values).</li>
+                <li>Create another dataset where missing <code>cases</code> values are replaced with the mean of the district.</li>
+                <li>For missing <code>deaths</code> values, replace with 0 and create a new flag column called <code>deaths_imputed</code> that is True when the value was imputed.</li>
+            </ol>
+            
+            <hr>
+            
+            <h3>Exercise 2.3: Missing Data Visualization</h3>
+            <p>🔹 <strong>Visualize the patterns of missing data in the dataset.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Create a visualization showing the proportion of missing values in each column.</li>
+                <li>Visualize how missing values are distributed across districts.</li>
+                <li>Create a heatmap showing where missing values occur in the dataset.</li>
+            </ol>
+            
+        </div>
+        
+        <div class="exercise-section">
+            <h2 id="ex-viz">3️⃣ Data Visualization with matplotlib and seaborn</h2>
+            
+            <h3>Exercise 3.1: Temporal Trends</h3>
+            <p>🔹 <strong>Visualize how malaria cases change over time.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Create a line plot showing the total cases per month across all years.</li>
+                <li>Make a faceted plot showing yearly trends, with one panel per year.</li>
+                <li>Create a heatmap where x-axis is month, y-axis is year, and color represents number of cases.</li>
+            </ol>
+            
+            <hr>
+            
+            <h3>Exercise 3.2: Spatial Comparison</h3>
+            <p>🔹 <strong>Compare malaria statistics across different districts.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Create a bar chart showing the total cases by district in descending order.</li>
+                <li>Make boxplots comparing the distribution of monthly cases across districts.</li>
+                <li>Create a scatter plot with population on the x-axis and average cases on the y-axis, with points colored by district.</li>
+            </ol>
+            
+            <hr>
+            
+            <h3>Exercise 3.3: Relationship Visualization</h3>
+            <p>🔹 <strong>Explore relationships between variables in the dataset.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Create a scatter plot showing the relationship between cases and deaths, with a trend line.</li>
+                <li>Make a bubble chart where x-axis is population, y-axis is cases, and bubble size represents deaths.</li>
+                <li>Create a correlation plot showing relationships between all numeric variables.</li>
+            </ol>
+            
+        </div>
+        
+        <div class="exercise-section">
+            <h2 id="ex-bonus3">4️⃣ Bonus Challenge: Dashboard Creation</h2>
+            
+            <p>🔹 <strong>Create a simple dashboard using Dash or Streamlit to display key malaria statistics and visualizations.</strong></p>
+            
+            <p><strong>Write the Python code to:</strong></p>
+            <ol>
+                <li>Create a dashboard with at least 3 panels.</li>
+                <li>Include summary statistics, a time series plot, and a comparison across districts.</li>
+                <li>Add interactive elements with plotly.</li>
+                <li>Make the dashboard self-contained so it can be shared with others.</li>
+            </ol>
+            
+            <p>📌 <strong>Hint:</strong> Use <code>pip install dash</code> or <code>pip install streamlit</code> and check their documentation for templates.</p>
+            
+        </div>
+        
+        <hr>
+        
+        <h1 id="solutions3">📌 Week 3: Solutions – Exploratory Data Analysis & Visualization for Malaria Data</h1>
+        
+        <p>Here are the <strong>solutions</strong> for Week 3 exercises:</p>
+        
+        <hr>
+        
+        <div class="solution-section">
+            <h2 id="sol-stats">1️⃣ Descriptive Statistics & Summary Tables</h2>
+            
+            <h3>Exercise 1.1: Basic Summary Statistics</h3>
+            <div class="r-code">
+                <pre><code>
+# Load the dataset
+import pandas as pd
+malaria_surveillance = pd.read_csv("malaria_surveillance.csv")
+    
+# Display the information of the dataset
+malaria_surveillance.info()
+    
+# Calculate summary statistics for all numeric variables
+summary_stats = malaria_surveillance[['cases', 'deaths', 'population']].describe()
+print(summary_stats)
+    
+# Find the district with the highest number of cases
+max_cases_idx = malaria_surveillance['cases'].idxmax()
+max_cases_district = malaria_surveillance.loc[max_cases_idx, 'district']
+max_cases = malaria_surveillance.loc[max_cases_idx, 'cases']
+print(f"District with highest cases: {max_cases_district} with {max_cases} cases")
+    
+# Calculate the case fatality rate for each district
+cfr_by_district = malaria_surveillance.groupby('district').agg({
+    'cases': 'sum',
+    'deaths': 'sum'
+}).reset_index()
+cfr_by_district['cfr'] = (cfr_by_district['deaths'] / cfr_by_district['cases']) * 100
+cfr_by_district = cfr_by_district.sort_values('cfr', ascending=False)
+print(cfr_by_district)
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- <code>info()</code> shows the information about the dataset including data types and non-null counts.<br>
+                - <code>describe()</code> provides basic statistics for the selected numeric columns.<br>
+                - <code>idxmax()</code> finds the index of the row with the maximum value in the cases column.<br>
+                - We calculate the case fatality rate (CFR) as (deaths/cases)*100 for each district.</p>
+            </div>
+            
+            <hr>
+            
+            <h3>Exercise 1.2: Group-wise Statistics</h3>
+            <div class="r-code">
+                <pre><code>
+# Calculate average cases per year for each district
+avg_cases_by_district_year = malaria_surveillance.groupby(['district', 'year'])['cases'].mean().reset_index()
+avg_cases_by_district_year = avg_cases_by_district_year.sort_values(['district', 'year'])
+print(avg_cases_by_district_year)
+    
+# Identify the year with highest total cases
+yearly_totals = malaria_surveillance.groupby('year')['cases'].sum().reset_index()
+yearly_totals = yearly_totals.sort_values('cases', ascending=False)
+print(f"Year with highest total cases: {yearly_totals.iloc[0]['year']} with {yearly_totals.iloc[0]['cases']} cases")
+    
+# Calculate incidence rate per 1000 population
+incidence_by_district_year = malaria_surveillance.groupby(['district', 'year']).agg({
+    'cases': 'sum',
+    'population': 'mean'
+}).reset_index()
+incidence_by_district_year['incidence_per_1000'] = (incidence_by_district_year['cases'] / incidence_by_district_year['population']) * 1000
+incidence_by_district_year = incidence_by_district_year.sort_values('incidence_per_1000', ascending=False)
+    
+# Top 5 district-year combinations with highest incidence
+top_5_incidence = incidence_by_district_year.head(5)
+print(top_5_incidence)
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- We group the data by district and year to calculate average cases.<br>
+                - For yearly totals, we group only by year and sum all cases.<br>
+                - Incidence rate is calculated as (cases/population)*1000 for standardization.<br>
+                - <code>head()</code> selects the top 5 rows after sorting by incidence rate.</p>
+            </div>
+            
+            <hr>
+            
+            <h3>Exercise 1.3: Statistical Tests</h3>
+            <div class="r-code">
+                <pre><code>
+# ANOVA to test for difference in mean cases between districts
+import scipy.stats as stats
+districts = malaria_surveillance['district'].unique()
+groups = [malaria_surveillance[malaria_surveillance['district'] == district]['cases'].dropna() for district in districts]
+f_stat, p_value = stats.f_oneway(*groups)
+print(f"ANOVA results: F-statistic = {f_stat}, p-value = {p_value}")
+    
+# T-test to compare cases between two specific districts
+district_a = "Central"  # Replace with actual district name
+district_b = "Eastern"  # Replace with actual district name
+cases_a = malaria_surveillance[malaria_surveillance['district'] == district_a]['cases'].dropna()
+cases_b = malaria_surveillance[malaria_surveillance['district'] == district_b]['cases'].dropna()
+t_stat, p_value = stats.ttest_ind(cases_a, cases_b)
+print(f"T-test results for {district_a} vs {district_b}: t-statistic = {t_stat}, p-value = {p_value}")
+    
+# Check correlation between population size and number of cases
+correlation, p_value = stats.pearsonr(
+    malaria_surveillance['population'].dropna(),
+    malaria_surveillance['cases'].dropna()
+)
+print(f"Pearson correlation coefficient: {correlation}, p-value: {p_value}")
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- ANOVA tests whether there are significant differences in means across multiple groups.<br>
+                - The t-test compares means between two specific groups.<br>
+                - Pearson's correlation measures the linear relationship between population and cases.</p>
+            </div>
+        </div>
+        
+        <div class="solution-section">
+            <h2 id="sol-missing">2️⃣ Handling Missing Values</h2>
+            
+            <h3>Exercise 2.1: Identify Missing Data</h3>
+            <div class="r-code">
+                <pre><code>
+# Count missing values in each column
+missing_count = malaria_surveillance.isnull().sum()
+print(missing_count)
+    
+# Calculate percentage of missing values
+missing_percentage = malaria_surveillance.isnull().mean() * 100
+print(missing_percentage)
+    
+# Identify districts with most missing values
+missing_by_district = malaria_surveillance.groupby('district').agg({
+    'cases': lambda x: x.isnull().sum(),
+    'deaths': lambda x: x.isnull().sum()
+}).reset_index()
+missing_by_district['total_missing'] = missing_by_district['cases'] + missing_by_district['deaths']
+missing_by_district = missing_by_district.sort_values('total_missing', ascending=False)
+print(missing_by_district)
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- <code>isnull().sum()</code> counts missing values in each column.<br>
+                - <code>isnull().mean() * 100</code> calculates the percentage of missing values.<br>
+                - We group by district to identify which districts have the most missing data.</p>
+            </div>
+            
+            <hr>
+            
+            <h3>Exercise 2.2: Handle Missing Values</h3>
+            <div class="r-code">
+                <pre><code>
+# Dataset with complete cases only
+complete_data = malaria_surveillance.dropna()
+print(f"Original rows: {len(malaria_surveillance)}, Complete rows: {len(complete_data)}, Removed: {len(malaria_surveillance) - len(complete_data)}")
+
+# Replace missing cases with district mean
+imputed_cases = malaria_surveillance.copy()
+district_means = malaria_surveillance.groupby('district')['cases'].transform('mean')
+imputed_cases['cases'] = malaria_surveillance['cases'].fillna(district_means)
+
+# Replace missing deaths with 0 and create flag
+imputed_deaths = malaria_surveillance.copy()
+imputed_deaths['deaths_imputed'] = imputed_deaths['deaths'].isnull()
+imputed_deaths['deaths'] = imputed_deaths['deaths'].fillna(0)
+
+# Check the results
+print(imputed_cases['cases'].describe())
+print(imputed_deaths['deaths'].describe())
+print(imputed_deaths['deaths_imputed'].value_counts())
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- <code>dropna()</code> removes rows with any missing values.<br>
+                - For imputing missing cases, we use the mean of each district.<br>
+                - For missing deaths, we replace with 0 and create a flag to track which values were imputed.</p>
+            </div>
+            
+            <hr>
+            
+            <h3>Exercise 2.3: Missing Data Visualization</h3>
+            <div class="r-code">
+                <pre><code>
+# Visualize proportion of missing values by column
+import missingno as msno
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+msno.bar(malaria_surveillance)
+plt.title('Missing Values by Column')
+plt.tight_layout()
+plt.show()
+                    
+# Visualize missing values by district
+plt.figure(figsize=(12, 8))
+missing_data_by_district = malaria_surveillance.groupby('district').agg({
+    'cases': lambda x: x.isnull().mean() * 100,
+    'deaths': lambda x: x.isnull().mean() * 100
+}).reset_index()
+
+missing_data_melted = pd.melt(missing_data_by_district, 
+                             id_vars=['district'], 
+                             value_vars=['cases', 'deaths'],
+                             var_name='column', 
+                             value_name='percent_missing')
+
+sns.barplot(data=missing_data_melted, x='district', y='percent_missing', hue='column')
+plt.title('Percentage of Missing Values by District')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+                    
+# Create a heatmap of missing values
+plt.figure(figsize=(12, 8))
+msno.matrix(malaria_surveillance)
+plt.title('Missing Values Matrix')
+plt.tight_layout()
+plt.show()
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- <code>msno.bar()</code> creates a bar chart showing missing values by variable.<br>
+                - We create a custom visualization for missing values by district.<br>
+                - <code>msno.matrix()</code> creates a matrix visualization where cells are colored by whether they are missing or not.</p>
+            </div>
+        </div>
+        
+        <div class="solution-section">
+            <h2 id="sol-viz">3️⃣ Data Visualization with matplotlib and seaborn</h2>
+            
+            <h3>Exercise 3.1: Temporal Trends</h3>
+            <div class="r-code">
+                <pre><code>
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+                    
+# Create a date variable for proper time series plotting
+malaria_surveillance['date'] = pd.to_datetime(malaria_surveillance[['year', 'month']].assign(day=1))
+
+# Line plot showing total cases per month across all years
+monthly_cases = malaria_surveillance.groupby('month')['cases'].sum().reset_index()
+plt.figure(figsize=(12, 6))
+plt.plot(monthly_cases['month'], monthly_cases['cases'], marker='o', linestyle='-', color='blue')
+plt.title('Total Malaria Cases by Month')
+plt.xlabel('Month')
+plt.ylabel('Total Cases')
+plt.xticks(range(1, 13))
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+    
+# Faceted plot showing yearly trends
+yearly_trends = malaria_surveillance.groupby(['year', 'month'])['cases'].sum().reset_index()
+g = sns.FacetGrid(yearly_trends, col='year', col_wrap=3, height=3.5, aspect=1.2)
+g.map_dataframe(sns.lineplot, x='month', y='cases', marker='o')
+g.set_axis_labels('Month', 'Total Cases')
+g.set_titles('{col_name}')
+g.fig.suptitle('Monthly Malaria Cases by Year', y=1.02, fontsize=16)
+for ax in g.axes.flat:
+    ax.set_xticks(range(1, 13, 3))
+plt.tight_layout()
+plt.show()
+    
+# Heatmap of cases by month and year
+pivot_data = yearly_trends.pivot(index='year', columns='month', values='cases')
+plt.figure(figsize=(12, 8))
+sns.heatmap(pivot_data, cmap='YlOrRd', annot=True, fmt='.0f', linewidths=.5)
+plt.title('Heatmap of Malaria Cases')
+plt.xlabel('Month')
+plt.ylabel('Year')
+plt.tight_layout()
+plt.show()
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- We create a proper date variable for time series analysis.<br>
+                - The first plot shows the seasonal pattern across all years.<br>
+                - The faceted plot shows yearly trends with separate panels.<br>
+                - The heatmap provides a color-coded view of cases by month and year.</p>
+            </div>
+            
+            <hr>
+            
+            <h3>Exercise 3.2: Spatial Comparison</h3>
+            <div class="r-code">
+                <pre><code>
+# Bar chart of total cases by district
+district_totals = malaria_surveillance.groupby('district')['cases'].sum().reset_index()
+district_totals = district_totals.sort_values('cases', ascending=False)
+plt.figure(figsize=(12, 6))
+sns.barplot(data=district_totals, x='district', y='cases', palette='viridis')
+plt.title('Total Malaria Cases by District')
+plt.xlabel('District')
+plt.ylabel('Total Cases')
+plt.xticks(rotation=45)
+plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+    
+# Boxplots comparing monthly cases across districts
+plt.figure(figsize=(14, 7))
+sns.boxplot(data=malaria_surveillance, x='district', y='cases', palette='Set3')
+plt.title('Distribution of Monthly Malaria Cases by District')
+plt.xlabel('District')
+plt.ylabel('Cases')
+plt.xticks(rotation=45)
+plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+    
+# Scatter plot of population vs. average cases
+district_avg = malaria_surveillance.groupby('district').agg({
+    'cases': 'mean',
+    'population': 'mean'
+}).reset_index()
+plt.figure(figsize=(12, 8))
+sns.scatterplot(data=district_avg, x='population', y='cases', hue='district', s=100)
+plt.title('Average Cases vs. Population by District')
+plt.xlabel('Average Population')
+plt.ylabel('Average Cases')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- The bar chart shows total cases by district in descending order.<br>
+                - Boxplots display the distribution of cases within each district.<br>
+                - The scatter plot reveals the relationship between population size and average cases.</p>
+            </div>
+            
+            <hr>
+            
+            <h3>Exercise 3.3: Relationship Visualization</h3>
+            <div class="r-code">
+                <pre><code>
+# Scatter plot of cases vs deaths with trend line
+plt.figure(figsize=(12, 8))
+sns.regplot(data=malaria_surveillance, x='cases', y='deaths', scatter_kws={'alpha':0.5}, line_kws={'color':'red'})
+plt.title('Relationship Between Malaria Cases and Deaths')
+plt.xlabel('Number of Cases')
+plt.ylabel('Number of Deaths')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+                   
+# Bubble chart
+plt.figure(figsize=(12, 8))
+sns.scatterplot(data=malaria_surveillance, x='population', y='cases', size='deaths', sizes=(20, 500), hue='district', alpha=0.6)
+plt.title('Malaria Cases by Population and Deaths')
+plt.xlabel('Population')
+plt.ylabel('Cases')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+                    
+# Correlation plot
+plt.figure(figsize=(10, 8))
+numeric_vars = malaria_surveillance[['cases', 'deaths', 'population']]
+correlation_matrix = numeric_vars.corr()
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, linewidths=0.5)
+plt.title('Correlation Matrix of Numeric Variables')
+plt.tight_layout()
+plt.show()
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- The scatter plot with trend line shows the relationship between cases and deaths.<br>
+                - The bubble chart visualizes three variables: population, cases, and deaths.<br>
+                - The correlation plot shows the strength of relationships between all numeric variables.</p>
+            </div>
+        </div>
+        
+        <div class="solution-section">
+            <h2 id="sol-bonus3">4️⃣ Bonus Challenge: Dashboard Creation</h2>
+            
+            <div class="r-code">
+                <pre><code>
+# This is sample code for creating a Streamlit dashboard
+# Save this as a Python file (e.g., malaria_dashboard.py) and run with: streamlit run malaria_dashboard.py
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
+
+# Set page title
+st.set_page_config(page_title="Malaria Surveillance Dashboard", layout="wide")
+
+# Dashboard title
+st.title("Malaria Surveillance Dashboard")
+
+# Load data
+@st.cache_data
+def load_data():
+    malaria_surveillance = pd.read_csv("malaria_surveillance.csv")
+    malaria_surveillance['date'] = pd.to_datetime(malaria_surveillance[['year', 'month']].assign(day=1))
+    return malaria_surveillance
+
+malaria_surveillance = load_data()
+
+# Dashboard layout with multiple columns
+col1, col2, col3 = st.columns(3)
+
+# Key metrics
+with col1:
+    st.metric("Total Cases", f"{malaria_surveillance['cases'].sum():,.0f}")
+    
+with col2:
+    st.metric("Total Deaths", f"{malaria_surveillance['deaths'].sum():,.0f}")
+    
+with col3:
+    cfr = (malaria_surveillance['deaths'].sum() / malaria_surveillance['cases'].sum()) * 100
+    st.metric("Case Fatality Rate", f"{cfr:.2f}%")
+
+# Time series visualization
+st.header("Malaria Cases Over Time")
+
+# Create time series data
+time_series = malaria_surveillance.groupby(['year', 'month']).agg({
+    'cases': 'sum',
+    'deaths': 'sum'
+}).reset_index()
+time_series['date'] = pd.to_datetime(time_series[['year', 'month']].assign(day=1))
+
+# Create interactive line chart
+fig = px.line(
+    time_series,
+    x='date',
+    y='cases',
+    title='Malaria Cases Over Time',
+    labels={'cases': 'Total Cases', 'date': 'Date'},
+    markers=True
+)
+st.plotly_chart(fig, use_container_width=True)
+
+# District comparison
+st.header("District Comparison")
+
+# Total cases by district
+district_totals = malaria_surveillance.groupby('district')['cases'].sum().reset_index()
+district_totals = district_totals.sort_values('cases', ascending=False)
+
+fig_districts = px.bar(
+    district_totals,
+    x='district',
+    y='cases',
+    title='Total Malaria Cases by District',
+    labels={'cases': 'Total Cases', 'district': 'District'},
+    color='cases',
+    color_continuous_scale='Viridis'
+)
+st.plotly_chart(fig_districts, use_container_width=True)
+
+# Monthly pattern
+st.header("Monthly Pattern")
+
+monthly_pattern = malaria_surveillance.groupby('month')['cases'].mean().reset_index()
+monthly_pattern['month_name'] = monthly_pattern['month'].apply(lambda x: [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+][x-1])
+
+fig_monthly = px.bar(
+    monthly_pattern,
+    x='month_name',
+    y='cases',
+    title='Average Malaria Cases by Month',
+    labels={'cases': 'Average Cases', 'month_name': 'Month'},
+    color='cases',
+    color_continuous_scale='Greens'
+)
+fig_monthly.update_layout(xaxis={'categoryorder': 'array', 'categoryarray': monthly_pattern['month_name']})
+st.plotly_chart(fig_monthly, use_container_width=True)
+
+# Data table
+st.header("District Summary Table")
+
+district_summary = malaria_surveillance.groupby('district').agg({
+    'cases': 'sum',
+    'deaths': 'sum',
+    'population': 'mean'
+}).reset_index()
+
+district_summary['cfr'] = (district_summary['deaths'] / district_summary['cases']) * 100
+district_summary['incidence_per_1000'] = (district_summary['cases'] / district_summary['population']) * 1000
+
+# Format columns for display
+district_summary['cases'] = district_summary['cases'].apply(lambda x: f"{x:,.0f}")
+district_summary['deaths'] = district_summary['deaths'].apply(lambda x: f"{x:,.0f}")
+district_summary['population'] = district_summary['population'].apply(lambda x: f"{x:,.0f}")
+district_summary['cfr'] = district_summary['cfr'].apply(lambda x: f"{x:.2f}%")
+district_summary['incidence_per_1000'] = district_summary['incidence_per_1000'].apply(lambda x: f"{x:.2f}")
+
+# Rename columns for display
+district_summary.columns = ['District', 'Total Cases', 'Total Deaths', 'Avg. Population', 'Case Fatality Rate', 'Incidence per 1,000']
+
+st.dataframe(district_summary, use_container_width=True)
+
+# Add footer
+st.caption("Data source: Malaria Surveillance Dataset")
+                </code></pre>
+            </div>
+            
+            <div class="explanation">
+                <h4>Explanation:</h4>
+                <p>- This code creates a Streamlit dashboard with multiple sections.<br>
+                - The dashboard includes key metrics, an interactive time series plot, district comparisons, and a data table.<br>
+                - Interactive elements are created using Plotly and Streamlit components.<br>
+                - The <code>@st.cache_data</code> decorator helps improve performance by caching the data loading step.</p>
+                <p>To run this dashboard:</p>
+                <ol>
+                    <li>Install Streamlit: <code>pip install streamlit</code></li>
+                    <li>Save the code to a file (e.g., <code>malaria_dashboard.py</code>)</li>
+                    <li>Run from command line: <code>streamlit run malaria_dashboard.py</code></li>
+                </ol>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <h2>💡 What's Next?</h2>
+        <p>✔ After completing these exercises, you have learned how to explore, clean, and visualize malaria data effectively using Python.<br>
+        ✔ In <strong>Week 4</strong>, we will explore advanced statistical modeling techniques for predicting malaria trends and identifying risk factors.</p>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
